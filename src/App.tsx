@@ -7,13 +7,28 @@ function App() {
   const pc = useRef<RTCPeerConnection>()
   const textRef = useRef<HTMLTextAreaElement>(null)
   const localStreamRef = useRef<MediaStream>()
+  const wsRef = useRef(new WebSocket('ws://127.0.0.1:1234'))
 
   useEffect(() => {
+    initWs()
     getMediaDevices().then(() => {
       createRtcConnection()
       addLocalStreamToRtcConnection()
     })
   }, [])
+
+  const initWs = () => {
+    wsRef.current.onopen = () => console.log('ws 已经打开')
+    wsRef.current.onmessage = e => {
+      const wsData = JSON.parse(e.data)
+      console.log('wsData', wsData)
+      const wsType = wsData['type']
+      if (wsType === 'offer') {
+        const wsOffer = wsData['data']
+        textRef.current!.value = wsOffer
+      }
+    }
+  }
 
   const getMediaDevices = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -53,6 +68,10 @@ function App() {
       .then(sdp => {
         console.log('offer', JSON.stringify(sdp))
         pc.current?.setLocalDescription(sdp)
+        wsRef.current.send(JSON.stringify({
+          'type': 'offer',
+          'data': JSON.stringify(sdp),
+        }))
       })
   }
 

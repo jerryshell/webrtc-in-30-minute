@@ -39,11 +39,11 @@ function App() {
 
     if (wsType === 'offer') {
       const wsOffer = wsData['data']
-      textRef.current!.value = wsOffer
+      pc.current?.setRemoteDescription(new RTCSessionDescription(JSON.parse(wsOffer)))
     }
     if (wsType === 'answer') {
       const wsAnswer = wsData['data']
-      textRef.current!.value = wsAnswer
+      pc.current?.setRemoteDescription(new RTCSessionDescription(JSON.parse(wsAnswer)))
     }
   }
 
@@ -109,12 +109,6 @@ function App() {
       })
   }
 
-  const setRemoteDescrition = () => {
-    const remoteSdp = JSON.parse(textRef.current!.value)
-    pc.current?.setRemoteDescription(new RTCSessionDescription(remoteSdp))
-    console.log('设置远程描述成功', remoteSdp)
-  }
-
   const addCandidate = () => {
     const candidate = JSON.parse(textRef.current!.value)
     pc.current?.addIceCandidate(new RTCIceCandidate(candidate))
@@ -138,8 +132,6 @@ function App() {
       <button onClick={createOffer}>创建 Offer</button>
       <br />
       <textarea ref={textRef}></textarea>
-      <br />
-      <button onClick={setRemoteDescrition}>设置远程描述</button>
       <br />
       <button onClick={createAnswer}>创建 Answer</button>
       <br />

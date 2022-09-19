@@ -6,6 +6,7 @@ function App() {
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
   const pc = useRef<RTCPeerConnection>()
   const textRef = useRef<HTMLTextAreaElement>(null)
+  const localStreamRef = useRef<MediaStream>()
 
   const getMediaDevices = () => {
     navigator.mediaDevices.getUserMedia({
@@ -15,6 +16,7 @@ function App() {
       .then(stream => {
         console.log('stream', stream)
         localVideoRef.current!.srcObject = stream
+        localStreamRef.current = stream
       })
   }
 
@@ -69,6 +71,13 @@ function App() {
     console.log('添加候选成功', candidate)
   }
 
+  const addLocalStreamToRtcConnection = () => {
+    const localStream = localStreamRef.current!
+    localStream.getTracks().forEach(track => {
+      pc.current!.addTrack(track, localStream)
+    })
+  }
+
   return (
     <div>
       <button onClick={getMediaDevices}>获取摄像头和麦克风</button>
@@ -77,6 +86,8 @@ function App() {
       <video style={{ width: '400px' }} ref={remoteVideoRef} autoPlay controls></video>
       <br />
       <button onClick={createRtcConnection}>创建 RTC 连接</button>
+      <br />
+      <button onClick={addLocalStreamToRtcConnection}>将本地视频流添加到 RTC 连接中</button>
       <br />
       <button onClick={createOffer}>创建 Offer</button>
       <br />

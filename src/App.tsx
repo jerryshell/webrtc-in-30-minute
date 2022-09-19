@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 function App() {
@@ -8,16 +8,21 @@ function App() {
   const textRef = useRef<HTMLTextAreaElement>(null)
   const localStreamRef = useRef<MediaStream>()
 
-  const getMediaDevices = () => {
-    navigator.mediaDevices.getUserMedia({
+  useEffect(() => {
+    getMediaDevices().then(() => {
+      createRtcConnection()
+      addLocalStreamToRtcConnection()
+    })
+  }, [])
+
+  const getMediaDevices = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: false,
     })
-      .then(stream => {
-        console.log('stream', stream)
-        localVideoRef.current!.srcObject = stream
-        localStreamRef.current = stream
-      })
+    console.log('stream', stream)
+    localVideoRef.current!.srcObject = stream
+    localStreamRef.current = stream
   }
 
   const createRtcConnection = () => {
@@ -84,14 +89,8 @@ function App() {
 
   return (
     <div>
-      <button onClick={getMediaDevices}>获取摄像头和麦克风</button>
-      <br />
       <video style={{ width: '400px' }} ref={localVideoRef} autoPlay controls></video>
       <video style={{ width: '400px' }} ref={remoteVideoRef} autoPlay controls></video>
-      <br />
-      <button onClick={createRtcConnection}>创建 RTC 连接</button>
-      <br />
-      <button onClick={addLocalStreamToRtcConnection}>将本地视频流添加到 RTC 连接中</button>
       <br />
       <button onClick={createOffer}>创建 Offer</button>
       <br />

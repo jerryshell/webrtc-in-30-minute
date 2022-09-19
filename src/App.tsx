@@ -33,6 +33,9 @@ function App() {
         console.log('candidate', JSON.stringify(e.candidate))
       }
     }
+    _pc.ontrack = e => {
+      remoteVideoRef.current!.srcObject = e.streams[0]
+    }
     pc.current = _pc
     console.log('rtc 连接创建成功', _pc)
   }
@@ -76,6 +79,7 @@ function App() {
     localStream.getTracks().forEach(track => {
       pc.current!.addTrack(track, localStream)
     })
+    console.log('将本地视频流添加到 RTC 连接成功')
   }
 
   return (

@@ -40,6 +40,17 @@ function App() {
       })
   }
 
+  const createAnswer = () => {
+    pc.current?.createAnswer({
+      offerToReceiveVideo: true,
+      offerToReceiveAudio: true,
+    })
+      .then(sdp => {
+        console.log('answer', JSON.stringify(sdp))
+        pc.current?.setLocalDescription(sdp)
+      })
+  }
+
   const setRemoteDescrition = () => {
     const remoteSdp = JSON.parse(textRef.current!.value)
     pc.current?.setRemoteDescription(new RTCSessionDescription(remoteSdp))
@@ -59,6 +70,7 @@ function App() {
       <textarea ref={textRef}></textarea>
       <br />
       <button onClick={setRemoteDescrition}>设置远程描述</button>
+      <button onClick={createAnswer}>创建 Answer</button>
     </div>
   )
 }

@@ -1,5 +1,9 @@
 # WebRTC 30 分钟快速实践
 
+React Hooks + TypeScript
+
+Bilibili 视频：[https://www.bilibili.com/video/BV1W14y1Y7fQ/](https://www.bilibili.com/video/BV1W14y1Y7fQ/)
+
 # 初始化
 
 ```bash

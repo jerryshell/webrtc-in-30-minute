@@ -4,6 +4,7 @@ import './App.css'
 function App() {
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const pc = useRef<RTCPeerConnection>()
+  const textRef = useRef<HTMLTextAreaElement>(null)
 
   const getMediaDevices = () => {
     navigator.mediaDevices.getUserMedia({
@@ -39,6 +40,12 @@ function App() {
       })
   }
 
+  const setRemoteDescrition = () => {
+    const remoteSdp = JSON.parse(textRef.current!.value)
+    pc.current?.setRemoteDescription(new RTCSessionDescription(remoteSdp))
+    console.log('设置远程描述成功', remoteSdp)
+  }
+
   return (
     <div>
       <button onClick={getMediaDevices}>获取摄像头和麦克风</button>
@@ -48,6 +55,10 @@ function App() {
       <button onClick={createRtcConnection}>创建 RTC 连接</button>
       <br />
       <button onClick={createOffer}>创建 Offer</button>
+      <br />
+      <textarea ref={textRef}></textarea>
+      <br />
+      <button onClick={setRemoteDescrition}>设置远程描述</button>
     </div>
   )
 }

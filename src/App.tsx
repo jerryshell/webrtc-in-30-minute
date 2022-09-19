@@ -8,6 +8,7 @@ function App() {
   const localStreamRef = useRef<MediaStream>()
   const wsRef = useRef(new WebSocket('ws://127.0.0.1:1234'))
   const username = (Math.random() + 1).toString(36).substring(7)
+  const [status, setStatus] = useState('开始通话')
 
   useEffect(() => {
     initWs()
@@ -39,10 +40,12 @@ function App() {
     if (wsType === 'offer') {
       const wsOffer = wsData['data']
       pc.current?.setRemoteDescription(new RTCSessionDescription(JSON.parse(wsOffer)))
+      setStatus('请接听通话')
     }
     if (wsType === 'answer') {
       const wsAnswer = wsData['data']
       pc.current?.setRemoteDescription(new RTCSessionDescription(JSON.parse(wsAnswer)))
+      setStatus('通话中')
     }
     if (wsType === 'candidate') {
       const wsCandidate = JSON.parse(wsData['data'])
@@ -99,6 +102,7 @@ function App() {
         console.log('offer', JSON.stringify(sdp))
         pc.current?.setLocalDescription(sdp)
         wsSend('offer', JSON.stringify(sdp))
+        setStatus('等待对方接听')
       })
   }
 
@@ -111,6 +115,7 @@ function App() {
         console.log('answer', JSON.stringify(sdp))
         pc.current?.setLocalDescription(sdp)
         wsSend('answer', JSON.stringify(sdp))
+        setStatus('通话中')
       })
   }
 
@@ -128,8 +133,14 @@ function App() {
       <video style={{ width: '400px' }} ref={localVideoRef} autoPlay controls></video>
       <video style={{ width: '400px' }} ref={remoteVideoRef} autoPlay controls></video>
       <br />
-      <button onClick={createOffer}>创建 Offer</button>
-      <button onClick={createAnswer}>创建 Answer</button>
+      <p>{`当前状态：${status}`}</p>
+      <br />
+      {status === '开始通话' && (
+        <button onClick={createOffer}>拨号</button>
+      )}
+      {status === '请接听通话' && (
+        <button onClick={createAnswer}>接听</button>
+      )}
     </div>
   )
 }

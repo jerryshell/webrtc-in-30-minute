@@ -3,6 +3,7 @@ import './App.css'
 
 function App() {
   const localVideoRef = useRef<HTMLVideoElement>(null)
+  const remoteVideoRef = useRef<HTMLVideoElement>(null)
   const pc = useRef<RTCPeerConnection>()
   const textRef = useRef<HTMLTextAreaElement>(null)
 
@@ -72,7 +73,8 @@ function App() {
     <div>
       <button onClick={getMediaDevices}>获取摄像头和麦克风</button>
       <br />
-      <video style={{ width: '400px' }} ref={localVideoRef} autoPlay></video>
+      <video style={{ width: '400px' }} ref={localVideoRef} autoPlay controls></video>
+      <video style={{ width: '400px' }} ref={remoteVideoRef} autoPlay controls></video>
       <br />
       <button onClick={createRtcConnection}>创建 RTC 连接</button>
       <br />

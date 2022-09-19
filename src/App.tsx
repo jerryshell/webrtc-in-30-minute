@@ -41,6 +41,10 @@ function App() {
       const wsOffer = wsData['data']
       textRef.current!.value = wsOffer
     }
+    if (wsType === 'answer') {
+      const wsAnswer = wsData['data']
+      textRef.current!.value = wsAnswer
+    }
   }
 
   const wsSend = (type: string, data: any) => {
@@ -101,6 +105,7 @@ function App() {
       .then(sdp => {
         console.log('answer', JSON.stringify(sdp))
         pc.current?.setLocalDescription(sdp)
+        wsSend('answer', JSON.stringify(sdp))
       })
   }
 

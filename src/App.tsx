@@ -5,7 +5,6 @@ function App() {
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
   const pc = useRef<RTCPeerConnection>()
-  const textRef = useRef<HTMLTextAreaElement>(null)
   const localStreamRef = useRef<MediaStream>()
   const wsRef = useRef(new WebSocket('ws://127.0.0.1:1234'))
   const username = (Math.random() + 1).toString(36).substring(7)
@@ -45,6 +44,11 @@ function App() {
       const wsAnswer = wsData['data']
       pc.current?.setRemoteDescription(new RTCSessionDescription(JSON.parse(wsAnswer)))
     }
+    if (wsType === 'candidate') {
+      const wsCandidate = JSON.parse(wsData['data'])
+      pc.current?.addIceCandidate(new RTCIceCandidate(wsCandidate))
+      console.log('添加候选成功', wsCandidate)
+    }
   }
 
   const wsSend = (type: string, data: any) => {
@@ -76,6 +80,7 @@ function App() {
     _pc.onicecandidate = e => {
       if (e.candidate) {
         console.log('candidate', JSON.stringify(e.candidate))
+        wsSend('candidate', JSON.stringify(e.candidate))
       }
     }
     _pc.ontrack = e => {
@@ -109,12 +114,6 @@ function App() {
       })
   }
 
-  const addCandidate = () => {
-    const candidate = JSON.parse(textRef.current!.value)
-    pc.current?.addIceCandidate(new RTCIceCandidate(candidate))
-    console.log('添加候选成功', candidate)
-  }
-
   const addLocalStreamToRtcConnection = () => {
     const localStream = localStreamRef.current!
     localStream.getTracks().forEach(track => {
@@ -130,12 +129,7 @@ function App() {
       <video style={{ width: '400px' }} ref={remoteVideoRef} autoPlay controls></video>
       <br />
       <button onClick={createOffer}>创建 Offer</button>
-      <br />
-      <textarea ref={textRef}></textarea>
-      <br />
       <button onClick={createAnswer}>创建 Answer</button>
-      <br />
-      <button onClick={addCandidate}>添加候选</button>
     </div>
   )
 }

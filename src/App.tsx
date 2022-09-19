@@ -8,6 +8,7 @@ function App() {
   const textRef = useRef<HTMLTextAreaElement>(null)
   const localStreamRef = useRef<MediaStream>()
   const wsRef = useRef(new WebSocket('ws://127.0.0.1:1234'))
+  const username = (Math.random() + 1).toString(36).substring(7)
 
   useEffect(() => {
     initWs()
@@ -19,15 +20,35 @@ function App() {
 
   const initWs = () => {
     wsRef.current.onopen = () => console.log('ws 已经打开')
-    wsRef.current.onmessage = e => {
-      const wsData = JSON.parse(e.data)
-      console.log('wsData', wsData)
-      const wsType = wsData['type']
-      if (wsType === 'offer') {
-        const wsOffer = wsData['data']
-        textRef.current!.value = wsOffer
-      }
+    wsRef.current.onmessage = wsOnMessage
+  }
+
+  const wsOnMessage = (e: MessageEvent) => {
+    const wsData = JSON.parse(e.data)
+    console.log('wsData', wsData)
+
+    const wsUsername = wsData['username']
+    console.log('wsUsername', wsUsername)
+    if (username === wsUsername) {
+      console.log('跳过处理本条消息')
+      return
     }
+
+    const wsType = wsData['type']
+    console.log('wsType', wsType)
+
+    if (wsType === 'offer') {
+      const wsOffer = wsData['data']
+      textRef.current!.value = wsOffer
+    }
+  }
+
+  const wsSend = (type: string, data: any) => {
+    wsRef.current.send(JSON.stringify({
+      username,
+      type,
+      data,
+    }))
   }
 
   const getMediaDevices = async () => {
@@ -68,10 +89,7 @@ function App() {
       .then(sdp => {
         console.log('offer', JSON.stringify(sdp))
         pc.current?.setLocalDescription(sdp)
-        wsRef.current.send(JSON.stringify({
-          'type': 'offer',
-          'data': JSON.stringify(sdp),
-        }))
+        wsSend('offer', JSON.stringify(sdp))
       })
   }
 
@@ -108,6 +126,7 @@ function App() {
 
   return (
     <div>
+      <div>{`username:${username}`}</div>
       <video style={{ width: '400px' }} ref={localVideoRef} autoPlay controls></video>
       <video style={{ width: '400px' }} ref={remoteVideoRef} autoPlay controls></video>
       <br />

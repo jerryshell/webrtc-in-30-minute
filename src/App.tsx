@@ -62,6 +62,12 @@ function App() {
     console.log('设置远程描述成功', remoteSdp)
   }
 
+  const addCandidate = () => {
+    const candidate = JSON.parse(textRef.current!.value)
+    pc.current?.addIceCandidate(new RTCIceCandidate(candidate))
+    console.log('添加候选成功', candidate)
+  }
+
   return (
     <div>
       <button onClick={getMediaDevices}>获取摄像头和麦克风</button>
@@ -75,7 +81,10 @@ function App() {
       <textarea ref={textRef}></textarea>
       <br />
       <button onClick={setRemoteDescrition}>设置远程描述</button>
+      <br />
       <button onClick={createAnswer}>创建 Answer</button>
+      <br />
+      <button onClick={addCandidate}>添加候选</button>
     </div>
   )
 }

@@ -25,6 +25,11 @@ function App() {
         }
       ]
     })
+    _pc.onicecandidate = e => {
+      if (e.candidate) {
+        console.log('candidate', JSON.stringify(e.candidate))
+      }
+    }
     pc.current = _pc
     console.log('rtc 连接创建成功', _pc)
   }
